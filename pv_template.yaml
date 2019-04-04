@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: <PV-NAME>
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: <PV-NAME>
+  capacity:
+    storage: <PV-SIZE>
+  hostPath:
+    path: /mnt/data/sdc/<PV-NAME>/
