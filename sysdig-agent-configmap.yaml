@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sysdig-agent
+data:
+  dragent.yaml: |
+    ### Agent tags
+    #tags: 
+
+    # Sysdig collector address
+     collector: 3.91.157.78
+
+     #Collector TCP port
+     collector_port: 31443
+
+     #Whether collector accepts ssl
+     ssl: true
+
+    # collector certificate validation
+     ssl_verify_certificate: false
+     #log:
+     #  file_priority: debug 
+     new_k8s: true
+     k8s_cluster_name: SysdigBackend
+     percentiles: [50, 95, 99]
+     app_checks_limit: 1000
+     prometheus:
+       enabled: true
+       interval: 10
+       log_errors: true
+     jmx:
+       limit: 3000
+     statsd:
+       limit: 1000
+     app_checks_always_send: true
+     
+     security:
+       enabled: true
+     commandlines_capture:
+       enabled: true
+     nmemdump:
+       enabled: true
