@@ -171,7 +171,7 @@ sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
 sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 
-systemctl enable --now kubelet 
+sudo systemctl enable --now kubelet 
 cat <<EOF >  /etc/sysctl.d/k8s.conf
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
@@ -202,10 +202,10 @@ echo "Installing Docker..."
 curl -fsSL https://get.docker.com -o get-docker.sh  
 sh get-docker.sh  >/dev/null 2>&1
 usermod -aG docker $USER  >/dev/null 2>&1
-systemctl unmask docker.service  >/dev/null 2>&1
-systemctl unmask docker.socket   >/dev/null 2>&1
-systemctl enable docker.service  >/dev/null 2>&1
-systemctl start docker.service   >/dev/null 2>&1
+sudo systemctl unmask docker.service  >/dev/null 2>&1
+sudo systemctl unmask docker.socket   >/dev/null 2>&1
+sudo systemctl enable docker.service  >/dev/null 2>&1
+sudo systemctl start docker.service   >/dev/null 2>&1
 
 echo "Waiting for Docker to load"
 sleep 10
@@ -213,8 +213,8 @@ sleep 10
 echo "Setting up Kube..."
 kubeadm reset -f >/dev/null
 
-systemctl enable kubelet.service
-systemctl start kubelet.service
+sudo systemctl enable kubelet.service
+sudo systemctl start kubelet.service
 kubeadm init     >/dev/null
 
 mkdir -p $HOME/.kube
@@ -228,7 +228,7 @@ wget  -O net.yaml https://cloud.weave.works/k8s/net?k8s-version=$(kubectl versio
 
 kubectl apply -f ./net.yaml > /dev/null
 
-systemctl enable kubelet.service
+sudo systemctl enable kubelet.service
 
 echo "Cleaning up....and installing Sysdigcloud"
 #Clean up first
