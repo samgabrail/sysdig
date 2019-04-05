@@ -154,7 +154,7 @@ function process_args()
 
 function aws_preflight_checks()
 {
-    aws --version >/dev/null 2>&1
+    aws --version 
     [ $? -ne 0 ] && msg "Error! aws cli command seems to be missing or not function correctly. Exiting."
 
     local aws_version=$(aws --version | awk '{print $1}' | cut -d / -f2)
@@ -428,7 +428,7 @@ function create_pv()
     pv_size=$(grep storage: $file | cut -d":" -f2)
     msg "Creating PV $pv_name with size $pv_size for file $file"
     mkdir -p /mnt/data/sdc/$pv_name
-    cat ../pv_template.yaml | sed -e "s/<PV-NAME>/$pv_name/g" | sed -e "s/<PV-SIZE>/$pv_size/g" | kubectl ${NS_OPTS} create -f -    >/dev/null
+    cat ../pv_template.yaml | sed -e "s/<PV-NAME>/$pv_name/g" | sed -e "s/<PV-SIZE>/$pv_size/g" | kubectl ${NS_OPTS} create -f -    
     sed -i -e "s/<INSERT_YOUR_STORAGE_CLASS_NAME>/$pv_name/g" $1
 }
 
@@ -472,7 +472,7 @@ function setup_k8s_net()
 {
     msg "Setting up kube net..."
     sysctl net.bridge.bridge-nf-call-iptables=1
-    wget  -O net.yaml https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n') 2>/dev/null
+    wget  -O net.yaml https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n') 
     [ $? -ne 0 ] && msg "ERROR - Can't install k8s netowrk!" && exit 1
     
     kubectl apply -f ./net.yaml > /dev/null
@@ -487,17 +487,17 @@ function setup_kube()
         msg "K8s already installed. Version - $kversion" && return
 
     msg "Setting up Kube..."
-    kubeadm reset -f >/dev/null
+    kubeadm reset -f 
 
     systemctl enable kubelet.service
     systemctl start kubelet.service
-    kubeadm init     >/dev/null
+    kubeadm init     
     
     mkdir -p $HOME/.kube
     cp -f  /etc/kubernetes/admin.conf $HOME/.kube/config
     [ $? -ne 0 ] && msg "ERROR - admin conf file does not exist - /etc/kubernetes/admin.conf" && exit 1
     chown $(id -u):$(id -g) $HOME/.kube/config
-    kubectl taint nodes --all node-role.kubernetes.io/master-  >/dev/null
+    kubectl taint nodes --all node-role.kubernetes.io/master-  
 
     setup_k8s_net
   
@@ -528,7 +528,7 @@ function centos_env_setup()
     sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
     local array=( "6443" "2379-2380" "10250" "10251" "10252" "10255" "30443" "31443")
     for i in "${array[@]}"; do 
-        firewall-cmd --permanent --add-port=${i}/tcp >/dev/null
+        firewall-cmd --permanent --add-port=${i}/tcp 
     done
     firewall-cmd --reload
     
@@ -598,9 +598,9 @@ function env_setup()
 {
     msg "Updating pkg manager and installing deps"
     
-    $pkg_update >/dev/null 2>&1
-    $pkg_install jq  >/dev/null 2>&1
-    $pkg_install figlet >/dev/null 2>&1
+    $pkg_update 
+    $pkg_install jq  
+    $pkg_install figlet 
     
     ### Setup Kube per platform ###  
     local cmd=""
@@ -619,12 +619,12 @@ function env_setup()
     is_running docker
     if [ $? -ne 0 ]; then 
         curl -fsSL https://get.docker.com -o get-docker.sh  
-        sh get-docker.sh  >/dev/null 2>&1
-        usermod -aG docker $USER  >/dev/null 2>&1
-        systemctl unmask docker.service  >/dev/null 2>&1
-        systemctl unmask docker.socket   >/dev/null 2>&1
-        systemctl enable docker.service  >/dev/null 2>&1
-        systemctl start docker.service   >/dev/null 2>&1
+        sh get-docker.sh  
+        usermod -aG docker $USER  
+        systemctl unmask docker.service  
+        systemctl unmask docker.socket   
+        systemctl enable docker.service  
+        systemctl start docker.service   
     fi
 
     msg "Waiting for Docker to load"
@@ -648,12 +648,12 @@ function env_cleanup()
 
 function cmd_running_pods()
 {
-    kubectl get pods  | grep Running 2>&1 >/dev/null
+    kubectl get pods  | grep Running 
 }
 
 function cmd_mysql_pod_running()
 {
-    kubectl get pods | grep mysql | grep Running 2>&1 >/dev/null
+    kubectl get pods | grep mysql | grep Running 
 }
 
 function cmd_access_api()
@@ -700,7 +700,7 @@ function update_global_vars()
     # but to be on the safe side, we are waiting 2 more seconds.  
     sleep 2
 
-    access_key=$(kubectl  exec $mysql_pod -- mysql --password=change_me --database=draios -e "select access_key from customer_access_keys"    2>/dev/null | tail -1 )
+    access_key=$(kubectl  exec $mysql_pod -- mysql --password=change_me --database=draios -e "select access_key from customer_access_keys"     | tail -1 )
     [ $? -ne 0 ] && exit 1
 
     msg "Access Key - $access_key"
@@ -824,7 +824,7 @@ function setup_secrets()
     k8s_apply ./sysdigcloud/scanning-secrets.yaml
     k8s_apply ./sysdigcloud/anchore-secrets.yaml
 
-    openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -subj "/C=US/ST=CA/L=SanFrancisco/O=ICT/CN=onprem.sysdigcloud.com" -keyout server.key -out server.crt   >/dev/null 2>&1
+    openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -subj "/C=US/ST=CA/L=SanFrancisco/O=ICT/CN=onprem.sysdigcloud.com" -keyout server.key -out server.crt   
     kubectl create secret tls sysdigcloud-ssl-secret --cert=server.crt --key=server.key > /dev/null
 }
 
@@ -898,10 +898,10 @@ function wait_for_cmd()
     str=$(echo $1 | sed 's/cmd_//g')
     msg "Waiting for the following command - $str"
 
-    eval $1 >/dev/null 2>&1
+    eval $1 
     x=$?
     while [ $x -ne 0 ]; do
-        eval $1 >/dev/null 2>&1
+        eval $1 
         x=$?
         spin
         sleep 2
