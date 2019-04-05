@@ -138,9 +138,9 @@ function k8s_apply()
 
 #function main()
 
-pkg_update='yum -y -q update'
-pkg_install='yum -y -q install'
-pkg_remove='yum -y -q remove'
+pkg_update='sudo yum -y -q update'
+pkg_install='sudo yum -y -q install'
+pkg_remove='sudo yum -y -q remove'
 
 $pkg_install psmisc
 sleep 10
@@ -169,7 +169,7 @@ EOF
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
-yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 
 systemctl enable --now kubelet 
 cat <<EOF >  /etc/sysctl.d/k8s.conf
@@ -177,14 +177,14 @@ net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 EOF
 sysctl --system
-yum install -y yum-utils device-mapper-persistent-data lvm2
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
 
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 yum-config-manager --disable download.docker.com_linux_centos_docker-ce.rpm
-yum update -y
-yum install –y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+sudo yum update -y
+sudo yum install –y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 yum-config-manager --enable rhui-REGION-rhel-server-extras
-yum install -y docker-ce
+sudo yum install -y docker-ce
 local cmd=""
 cmd+=${_dist} 
 cmd+="_env_setup"
